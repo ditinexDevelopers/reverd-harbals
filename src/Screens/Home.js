@@ -11,10 +11,17 @@ import {
 import { MaterialCommunityIcons, AntDesign } from "@expo/vector-icons";
 import { ActivityIndicator, Avatar } from "react-native-paper";
 import { baseUrl } from "../Utils";
+import Header from "../Components/Header";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-const ProductCard = ({ title, img, category, price }) => {
+const ProductCard = ({ navigation, item, title, img, category, price }) => {
   return (
-    <TouchableOpacity className="bg-white w-[45%] border border-gray-100 p-2 rounded-lg m-2">
+    <TouchableOpacity
+      onPress={() =>
+        navigation.navigate("productDetails", { ProductDetails: item })
+      }
+      className="bg-white w-[45%] border border-gray-100 p-2 rounded-lg m-2"
+    >
       <Image
         className="h-28 w-full mb-3"
         resizeMethod="resize"
@@ -32,7 +39,7 @@ const ProductCard = ({ title, img, category, price }) => {
   );
 };
 
-const Home = () => {
+const Home = ({ navigation }) => {
   const [products, setProducts] = useState([]);
   const [unchangedProducts, setUnchangedProducts] = useState([]);
   const [query, setQuery] = useState("");
@@ -109,26 +116,28 @@ const Home = () => {
   }, [query]);
 
   return (
-    <View>
-      {/* *************** greetings and branding ********************/}
-      <View className="flex gap-0.5">
-        <Text className="font-bold text-2xl">Welcome to,</Text>
-        <Text className="font-medium text-lg text-gray-500">
-          Reverd Harbals Marketing Pvt. Ltd.
-        </Text>
-      </View>
-      {/* *************** Searchbar and filter ********************/}
-      <View className="flex flex-row items-center justify-between my-5">
-        <View className="w-full bg-gray-100 py-2 px-5 flex flex-row items-center rounded-full">
-          <AntDesign name="search1" size={24} color="black" />
-          <TextInput
-            className="ml-4 text-base text-gray-800"
-            onChangeText={(text) => setQuery(text)}
-            placeholder={`Search`}
-            mode="outlined"
-          />
+    <SafeAreaView className="bg-white h-full">
+      <View className="px-4">
+        <Header />
+        {/* *************** greetings and branding ********************/}
+        <View className="flex gap-0.5">
+          <Text className="font-bold text-2xl">Welcome to,</Text>
+          <Text className="font-medium text-lg text-gray-500">
+            Reverd Harbals Marketing Pvt. Ltd.
+          </Text>
         </View>
-        {/* <TouchableOpacity>
+        {/* *************** Searchbar and filter ********************/}
+        <View className="flex flex-row items-center justify-between my-5">
+          <View className="w-full bg-gray-100 py-2 px-5 flex flex-row items-center rounded-full">
+            <AntDesign name="search1" size={24} color="black" />
+            <TextInput
+              className="ml-4 text-base text-gray-800"
+              onChangeText={(text) => setQuery(text)}
+              placeholder={`Search`}
+              mode="outlined"
+            />
+          </View>
+          {/* <TouchableOpacity>
           <Avatar.Icon
             className="bg-black"
             icon={() => (
@@ -141,65 +150,68 @@ const Home = () => {
             size={40}
           />
         </TouchableOpacity> */}
-      </View>
-      {/* *************** category bar ********************/}
-      <View>
-        <Text className="text-lg font-bold mb-2">Categories</Text>
-        <FlatList
-          horizontal={true}
-          data={DATA}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() => {
-                onRadioBtnClick(item);
-                setSelectedCat(item.title);
-              }}
-              className={`border border-gray-300 ${
-                item.selected ? "bg-black" : "bg-transparent"
-              } py-2 px-3 rounded-full mr-3`}
-              key={item.id}
-            >
-              <Text
-                className={`font-semibold text-sm capitalize ${
-                  item.selected ? "text-white" : "text-black"
-                }`}
+        </View>
+        {/* *************** category bar ********************/}
+        <View>
+          <Text className="text-lg font-bold mb-2">Categories</Text>
+          <FlatList
+            horizontal={true}
+            data={DATA}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() => {
+                  onRadioBtnClick(item);
+                  setSelectedCat(item.title);
+                }}
+                className={`border border-gray-300 ${
+                  item.selected ? "bg-black" : "bg-transparent"
+                } py-2 px-3 rounded-full mr-3`}
+                key={item.id}
               >
-                {item.title}
-              </Text>
-            </TouchableOpacity>
-          )}
-        />
-      </View>
-      {/* *************** top products ********************/}
-      <View className="mt-5">
-        {/* <Text className="text-lg font-bold mb-2">Top Products</Text> */}
-        {Loading ? (
-          <ActivityIndicator
-            className="mt-20"
-            animating={true}
-            color="purple"
-            size={"large"}
+                <Text
+                  className={`font-semibold text-sm capitalize ${
+                    item.selected ? "text-white" : "text-black"
+                  }`}
+                >
+                  {item.title}
+                </Text>
+              </TouchableOpacity>
+            )}
           />
-        ) : (
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            className=" h-[55vh]"
-          >
-            <View className="flex flex-row flex-wrap">
-              {products?.map((item) => (
-                <ProductCard
-                  key={item.id}
-                  title={item?.title}
-                  img={item?.image}
-                  category={item?.category}
-                  price={item?.price}
-                />
-              ))}
-            </View>
-          </ScrollView>
-        )}
+        </View>
+        {/* *************** products ********************/}
+        <View className="mt-5">
+          {/* <Text className="text-lg font-bold mb-2">Top Products</Text> */}
+          {Loading ? (
+            <ActivityIndicator
+              className="mt-20"
+              animating={true}
+              color="purple"
+              size={"large"}
+            />
+          ) : (
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              className=" h-[55vh]"
+            >
+              <View className="flex flex-row flex-wrap">
+                {products?.map((item) => (
+                  <ProductCard
+                    key={item.id}
+                    navigation={navigation}
+                    item={item}
+                    title={item?.title}
+                    img={item?.image}
+                    category={item?.category}
+                    price={item?.price}
+                  />
+                ))}
+              </View>
+            </ScrollView>
+          )}
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
